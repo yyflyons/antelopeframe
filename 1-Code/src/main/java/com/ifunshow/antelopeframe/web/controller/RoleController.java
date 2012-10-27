@@ -7,9 +7,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
-
-import com.ifunshow.antelopeframe.core.extensions.exception.BusinessException;
-import com.ifunshow.antelopeframe.core.extensions.exception.ParameterException;
 import com.ifunshow.antelopeframe.entity.Role;
 import com.ifunshow.antelopeframe.web.base.BaseController;
 import com.ifunshow.antelopeframe.web.service.RoleService;
