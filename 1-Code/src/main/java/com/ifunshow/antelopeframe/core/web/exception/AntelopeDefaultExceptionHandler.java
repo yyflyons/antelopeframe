@@ -2,15 +2,12 @@ package com.ifunshow.antelopeframe.core.web.exception;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.HashMap;
-import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.log4j.Logger;
 import org.codehaus.jackson.JsonGenerator;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.ui.ModelMap;
-import org.springframework.validation.support.BindingAwareModelMap;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 import org.springframework.web.servlet.ModelAndView;
 import com.ifunshow.antelopeframe.core.extensions.ajax.AjaxUtils;

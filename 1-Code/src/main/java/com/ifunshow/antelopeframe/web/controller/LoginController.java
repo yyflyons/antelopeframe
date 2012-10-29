@@ -13,14 +13,14 @@ import com.ifunshow.antelopeframe.web.base.BaseController;
 @RequestMapping("/login")
 public class LoginController  extends BaseController{
 	
-	@RequestMapping("/goLogin")
+	@RequestMapping("/plogin")
 	public String pageLogin(HttpServletRequest request){
-		return "pageLogin";
+		return "login/pageLogin";
 	}
 	
-	@RequestMapping("/popLogin")
+	@RequestMapping("/alogin")
 	public String ajaxLogin(HttpServletRequest request){
-		return "ajaxLogin";
+		return "login/ajaxLogin";
 	}
 
 	@RequestMapping("/signin")

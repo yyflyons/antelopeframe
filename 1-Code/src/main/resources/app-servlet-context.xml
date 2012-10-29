@@ -62,10 +62,10 @@
 	<!-- 登录检查拦截器    -->
     <bean id="checkLoginInterceptor" class="com.ifunshow.antelopeframe.core.web.interceptor.CheckLoginInterceptor">
     	<property name="sessionKey" value="current_user" />
-    	<property name="loginUri" value="/login/goLogin" />
+    	<property name="loginUri" value="/login/alogin" />
     	<property name="excludeCheckUris">
     		<list>
-    			<value>/login/goLogin</value>
+    			<value>/login/alogin</value>
     			<value>/login/signin</value>
     			<value>/login/signout</value>
     		</list>
