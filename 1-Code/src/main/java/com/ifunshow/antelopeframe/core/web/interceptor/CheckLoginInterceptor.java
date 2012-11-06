@@ -21,7 +21,7 @@ public class CheckLoginInterceptor extends HandlerInterceptorAdapter {
 			return true;
 		}else{
 			if(null == request.getSession().getAttribute(sessionKey)){
-				response.sendRedirect(request.getContextPath()+loginUri);
+				response.sendRedirect(request.getContextPath()+loginUri+"?preUrl="+currentUri);
 				return false;
 			}else{
 				return true;

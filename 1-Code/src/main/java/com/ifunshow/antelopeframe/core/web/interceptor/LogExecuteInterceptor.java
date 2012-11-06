@@ -7,7 +7,7 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 import org.springframework.web.util.UrlPathHelper;
 
-import com.ifunshow.antelopeframe.entity.SystemLog;
+import com.ifunshow.antelopeframe.entity.system.SystemLog;
 import com.ifunshow.antelopeframe.util.uuid.UUIDHelper;
 import com.ifunshow.antelopeframe.util.web.AntelopeWebUtils;
  
