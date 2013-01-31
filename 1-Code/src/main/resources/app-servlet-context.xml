@@ -119,6 +119,8 @@
 		<property name="exposeSpringMacroHelpers" value="true" />
 		<!-- 允许访问请求属性，默认为false -->
 		<property name="exposeRequestAttributes" value="true" />
+		<!-- 允许覆盖会话属性，默认为false -->
+		<property name="allowSessionOverride" value="true"/> 
 		<!-- 允许访问会话属性，默认为false -->
 		<property name="exposeSessionAttributes" value="true" />
 		<!-- 页面上下文，类似于request.contextPath -->

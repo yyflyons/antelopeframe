@@ -17,8 +17,16 @@ public class MyBatisDao extends SqlSessionDaoSupport{
 		return getSqlSession().insert(key, object);
 	}
 	
+	public int update(String key) {
+		return getSqlSession().update(key);
+	}
+	
 	public int update(String key, Object object) {
 		return getSqlSession().update(key, object);
+	}
+	
+	public int delete(String key) {
+		return getSqlSession().delete(key);
 	}
 	
 	public int delete(String key, Serializable id) {
@@ -27,6 +35,10 @@ public class MyBatisDao extends SqlSessionDaoSupport{
 
 	public int delete(String key, Object object) {
 		return getSqlSession().delete(key, object);
+	}
+
+	public <T> T queryForOne(String key) {
+		return (T) getSqlSession().selectOne(key);
 	}
 	
 	public <T> T queryForOne(String key, Object params) {
