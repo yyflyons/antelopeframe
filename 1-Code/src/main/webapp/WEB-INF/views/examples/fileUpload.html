@@ -1,0 +1,13 @@
+<html>
+<body>
+  <h1>
+   Spring MVC 3.0 文件上传测试
+  </h1>   
+<!--  //action里的html是后缀名，不是HTML文件，用于spring对请求进行拦截判断-->
+  <form method="post" action="/af/fileupload/upload" enctype="multipart/form-data">其中method的是非注解的形式调用别的方法时传递的参数
+<!--   <input type="text" name="name" />-->
+   <input type="file" name="file" />
+   <input type="submit" />
+  </form>
+ </body>
+</html>
