@@ -50,8 +50,6 @@ public class HdfsClientService {
 				}else{
 					map.put("len", FormetFileSize(f.getLen()));
 				}
-				
-				
 				map.put("permission", f.getPermission().toString());
 				map.put("modificationTime",sdf.format(new Date(f.getModificationTime())));
 				list.add(map);
@@ -60,8 +58,38 @@ public class HdfsClientService {
 		return list;
 	}
 	
+	public List<Map<String,String>> lsSubdir(String dir) throws Exception{
+		List<Map<String,String>> list = null;
+		FileStatus[] fs = hdfsFileSystem.listStatus(new Path(dir));
+		if(null != fs && fs.length > 0){
+			list = new ArrayList<Map<String,String>>();
+			for(FileStatus f: fs){
+				if(f.isDirectory()){
+					Map<String,String> map = new HashMap<String,String>();
+					map.put("path", f.getPath().getParent().toString());
+					map.put("dirName", f.getPath().getName().replaceAll("\\.", "`"));
+					map.put("isDirectory","1");
+					map.put("owner", f.getOwner());
+					map.put("group", f.getGroup());
+					map.put("permission", f.getPermission().toString());
+					map.put("modificationTime",sdf.format(new Date(f.getModificationTime())));
+					list.add(map);
+				}
+			}
+		}
+		return ((null == list)||list.isEmpty())?null:list;
+	}
+	
 	public void upload2Hdfs(String srcPath,String dstPath) throws IOException{
 		hdfsFileSystem.copyFromLocalFile(new Path(srcPath), new Path(dstPath));
+	}
+	
+	public void moveFile(String srcPath,String dstPath) throws IOException{
+		hdfsFileSystem.rename(new Path(srcPath), new Path(dstPath));
+	}
+	
+	public void copyFile2Local(String srcPath,String dstPath) throws IOException{
+		hdfsFileSystem.copyToLocalFile(new Path(srcPath), new Path(dstPath));
 	}
 	
 	public void deleteFromHdfs(String dstPath,String[] files) throws IOException{
@@ -77,6 +105,10 @@ public class HdfsClientService {
 	
 	public void setHdfsFilePermission(String path, String permission) throws IOException {//012345678
 		hdfsFileSystem.setPermission(new Path(path), new FsPermission(getFsAction(permission.substring(0,3)),getFsAction(permission.substring(3,6)),getFsAction(permission.substring(6))));
+	}
+	
+	public void renameFileOnHdfs(String path, String oldFileName,String fileName) throws IOException {
+		hdfsFileSystem.rename(new Path(path+"/"+oldFileName), new Path(path+"/"+fileName));
 	}
 	
 	
@@ -118,5 +150,4 @@ public class HdfsClientService {
 		return fileSizeString;
 	}
 
-	
 }

@@ -39,10 +39,10 @@
         <li><span class="glyphicon glyphicon-home"></span>&nbsp;<a onclick='ls("${ctx}/hdfs/list/home")' href="#">主页</a></li>
       </ol>
       <ul id="toolbar" class="navbar-btn navbar-right" style="padding-right: 10px;margin-bottom: 0px;margin-top: 12px;display:none;">
-		  	<button type="button" data-toggle="modal" data-target="#PermisionModal">
+		  	<button type="button" data-toggle="modal" onclick="showPermisionModal()">
 		  		<i class="fa fa-unlock-alt"></i>&nbsp;&nbsp;授权
 			</button>
-		  	<button type="button">
+		  	<button type="button" onclick="downFiles()">
 		  		<span class="glyphicon glyphicon-save"></span>&nbsp;&nbsp;下载
 			</button>
 		  	<button type="button" onclick="deleteFiles()">
@@ -53,9 +53,8 @@
 			    	更多 <span class="caret"></span>
 			  </button>
 			  <ul class="dropdown-menu" role="menu">
-			    <li><a href="#"><i class="glyphicon glyphicon-edit"></i>&nbsp;&nbsp;重命名</a></li>
-			    <li><a href="#"><i class="fa fa-copy"></i>&nbsp;&nbsp;复制到</a></li>
-			    <li><a href="#"><span class="glyphicon glyphicon-move"></span>&nbsp;&nbsp;移动到</a></li>
+			    <li><a href="#" onclick="rename()"><i class="glyphicon glyphicon-edit"></i>&nbsp;&nbsp;重命名</a></li>
+			    <li><a href="#" onclick=showFileChangeModal("move")><span class="glyphicon glyphicon-move"></span>&nbsp;&nbsp;移动到</a></li>
 			  </ul>
 			</div>
       </ul>
@@ -85,7 +84,7 @@
 	  </div>
   </div>
 </div>
-<div class="modal fade" id="PermisionModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+<div class="modal fade" id="PermisionModal" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
@@ -95,7 +94,7 @@
       <div class="modal-body">
 		<form class="form-horizontal" role="form" id="permisionForm">
 		  <div class="form-group">
-		  	<label for="inputEmail3" class="col-sm-2 control-label">用&nbsp;&nbsp;&nbsp;&nbsp;户</label>
+		  	<label  class="col-sm-2 control-label">用&nbsp;&nbsp;&nbsp;&nbsp;户</label>
 			<label class="checkbox-inline">
 			  <input type="checkbox" id="PermisionCheckbox" name="uar" value="r"> 读(r)
 			</label>
@@ -107,7 +106,7 @@
 			</label>
 		  </div>
 		  <div class="form-group">
-		  	<label for="inputEmail3" class="col-sm-2 control-label">用户组</label>
+		  	<label class="col-sm-2 control-label">用户组</label>
 			<label class="checkbox-inline">
 			  <input type="checkbox" id="PermisionCheckbox" name="gar" value="r"> 读(r)
 			</label>
@@ -119,7 +118,7 @@
 			</label>
 		  </div>
 		  <div class="form-group">
-		  	<label for="inputEmail3" id="PermisionCheckbox" class="col-sm-2 control-label">其&nbsp;&nbsp;&nbsp;&nbsp;它</label>
+		  	<label  id="PermisionCheckbox" class="col-sm-2 control-label">其&nbsp;&nbsp;&nbsp;&nbsp;它</label>
 			<label class="checkbox-inline">
 			  <input type="checkbox" id="PermisionCheckbox" name="oar" value="r"> 读(r)
 			</label>
@@ -135,6 +134,46 @@
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
         <button type="button" class="btn btn-primary" onclick="submitPermision()">保存</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<div class="modal fade" id="FileChangeModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+      	<input type="hidden" id="dirpathval" value="" />
+      	<input type="hidden" id="fileOpType" value="" />
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h7 class="modal-title">目录选择:
+	        <span id="dirPath">
+	         <a onclick='lsDirs("${ctx}/hdfs/listdir/home")' href="#">/</a>
+	        </span>
+        </h7>
+      </div>
+      <div class="modal-body">
+	          <div class="panel panel-default">
+	            <div class="panel-body">
+					  <table class="table" id="dirTable">
+				        <thead>
+				          <tr>
+				            <th width="5%"></th>
+				            <th width="40%">目录名<span id="fileCount" class="badge pull-right"></span></th>
+				            <th width="20%">权限</th>
+				            <th width="15%">用户</th>
+				            <th width="15%">用户组</th>
+				          </tr>
+				        </thead>
+				        <tbody id="dirrows">
+				        </tbody>
+				      </table>
+	            </div>
+	          </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+        <button type="button" class="btn btn-primary" onclick="submitSelectFolder()">确定</button>
       </div>
     </div><!-- /.modal-content -->
   </div><!-- /.modal-dialog -->
@@ -158,7 +197,7 @@
 				    $.each(paths, function(i, _path){
 				    	if(i > 0){
 				    		_prefix += ":"+_path;
-				    		$("#bcpath").append('<li><a onclick=ls("${ctx}/hdfs/list/'+_prefix+'") href="#">'+_path.replace(/`/g,".") +'</li>');
+				    		$("#bcpath").append('<li><a onclick=ls("${ctx}/hdfs/list/'+_prefix+'") href="#">'+_path.replace(/`/g,".") +'</a></li>');
 				    	}
 				    });
 				    var fileCount = 0;
@@ -166,13 +205,13 @@
 				    $("#RowsCheckAll").attr("checked",false);
 				    $("#toolbar").css("display","none");
 					$.each(result.files, function(i, file){
-				     	var tr = '<tr id="tr'+i+'"><td><input name="rowCheckbox" type="checkbox" value="'+file.fileName+'"></td><td>';
+				     	var tr = '<tr id="tr'+i+'"><td><input id="ckbox_'+i+'" name="rowCheckbox" type="checkbox" value="'+file.fileName+'"></td><td id="td'+i+'">';
 				     	if(file.isFile === "1"){
-				     		tr += '<span class="glyphicon glyphicon-file"></span>&nbsp;&nbsp;';
+				     		tr += '<span id="td'+i+'_icon" class="glyphicon glyphicon-file"></span>&nbsp;&nbsp;<a id="td'+i+'_link" href="#">';
 				     	}else{
-				     		tr += '<span class="glyphicon glyphicon-folder-open"></span>&nbsp;&nbsp;<a onclick=ls("${ctx}/hdfs/list/'+result.parentPath+':'+file.fileName+'") href="#">';
+				     		tr += '<span id="td'+i+'_icon" class="glyphicon glyphicon-folder-open"></span>&nbsp;&nbsp;<a id="td'+i+'_link" onclick=ls("${ctx}/hdfs/list/'+result.parentPath+':'+file.fileName+'") href="#">';
 				     	}
-						tr += file.fileName.replace(/`/g,".")+'</td><td>'+file.len+'</td><td>'+file.modificationTime+'</td><td>'+file.permission+'</td><td>'+file.owner+'</td><td>'+file.group+'</td></tr>';
+						tr += file.fileName.replace(/`/g,".")+'</a></td><td>'+file.len+'</td><td>'+file.modificationTime+'</td><td>'+file.permission+'</td><td>'+file.owner+'</td><td>'+file.group+'</td></tr>';
 				     	$("#filerows").append(tr);
 				     	fileCount++;
 				    });
@@ -286,6 +325,12 @@
 		$('#newFolderBtn').removeAttr("disabled");
 	}
 	
+	
+	function showPermisionModal(){
+		$('input[id="PermisionCheckbox"]').attr("checked",false); 
+		$('#PermisionModal').modal('show');
+	}
+	
 	function submitPermision(){
 		if($("input[name='rowCheckbox']:checked").length > 0){
 			var files = "";
@@ -317,5 +362,155 @@
 		return false;
 	}
 	
+	
+	function rename(){
+		var boxs = $("input[name='rowCheckbox']:checked");
+		if(boxs.length > 0){
+			$("#"+boxs[0].id).attr("disabled","disabled");
+			var id = boxs[0].id.replace("ckbox_","");
+			var iconCss = $("#td"+id+"_icon").attr("class");
+			var filename = $("#td"+id+"_link").html();
+			$("#td"+id).html('<div class="input-group input-group-sm"><span id="renameIcon" class="'+iconCss+' input-group-btn">&nbsp;</span><input class="form-control input-sm" id="renameFileId" type="text" placeholder="请输入文件名称" value="'+filename+'" /><span class="input-group-btn"><button class="btn btn-default" type="button" onclick=submitRenameRow("td'+id+'")><span class="glyphicon glyphicon-ok"></span></button><button class="btn btn-default" type="button" onclick=cancleRenameRow("td'+id+'")><span class="glyphicon glyphicon-remove"></span></button></span></div>');
+			$("#newFolderBtn").attr("disabled","disabled");
+		}
+	}
+	
+	function submitRenameRow(tdid){
+		var fileName = $("#"+tdid+" #renameFileId").val();
+		if(fileName == ''){
+			alert("文件夹名称不能为空！");
+			return false;
+		}
+		var i = tdid.replace("td","");
+		var oldFileName = $("#"+'ckbox_'+i).val();
+		$.ajax({
+			url : '${ctx}/hdfs/renameFile/'+$("#dstpath").val()+'/'+oldFileName+'/'+fileName.replace(/\./g,"`"), 
+			dataType : "json",
+			success : function(result) {
+				if(result.errMsg){
+					alert(result.errMsg);
+				}else{
+					ls("${ctx}/hdfs/list/"+$("#dstpath").val());
+				}
+				$('#newFolderBtn').removeAttr("disabled");
+			}
+		});
+		return false;
+	}
+	
+	function cancleRenameRow(tdid){
+		var td = '<td id="'+tdid+'">';
+		var oldFileName = $("#"+'ckbox_'+tdid.replace("td","")).val();
+		if($("#renameIcon").hasClass("glyphicon-file")){
+			td += '<span id="'+tdid+'_icon" class="glyphicon glyphicon-file"></span>&nbsp;&nbsp;<a id="'+tdid+'_link" href="#">';
+		}else{
+			td += '<span id="'+tdid+'_icon" class="glyphicon glyphicon-folder-open"></span>&nbsp;&nbsp;<a id="'+tdid+'_link" onclick=ls("${ctx}/hdfs/list/'+$("#dstpath").val()+':'+oldFileName+'") href="#">';
+		}
+		td += oldFileName.replace(/`/g,".")+'</a></td>';
+		td += "</td>";
+		$("#"+tdid).html(td);
+		$('#newFolderBtn').removeAttr("disabled");
+		$("#"+'ckbox_'+tdid.replace("td","")).removeAttr("disabled");
+	}
+	
+	
+	function showFileChangeModal(fileOpType){
+		var boxs = $("input[name='rowCheckbox']:checked");
+		if(boxs.length > 1 || boxs.length == 0){
+			alert("请选择一个被操作的目录或文件");
+			return false;
+		}else{
+			lsDirs("${ctx}/hdfs/listdir/home");
+			$("#fileOpType").val(fileOpType);
+			$('#FileChangeModal').modal('show');
+		}
+	}
+	
+	function lsDirs(uri) {
+		$.ajax({
+			url : uri,
+			dataType : "json",
+			success : function(result) {
+				if(result.errMsg){
+					alert(result.errMsg);
+				}else{
+				    $("#dirrows").html("");
+				    $("#dirPath").html("");
+				    $("#dirPath").append('<a onclick=lsDirs("${ctx}/hdfs/listdir/home") href="#">/</a>&nbsp;');
+				    var parentPath = result.parentPath;
+				    $("#dirpathval").val(parentPath);
+				    var paths = parentPath.split(":");
+				    var _prefix = 'home';
+				    $.each(paths, function(i, _path){
+				    	if(i > 0){
+				    		_prefix += ":"+_path;
+				    		$("#dirPath").append(((i>1)?"/&nbsp;":"")+'<a onclick=lsDirs("${ctx}/hdfs/listdir/'+_prefix+'") href="#">'+_path.replace(/`/g,".") +'</a>&nbsp;');
+				    	}
+				    });
+				    var dirCount = 0;
+					$.each(result.dirs, function(i, dir){
+				     	var tr = '<tr><td><input name="dirCheckbox" type="radio" value="'+dir.dirName+'"></td><td>';
+				     	tr += '<span class="glyphicon glyphicon-folder-open"></span>&nbsp;&nbsp;<a id="td'+i+'_link" onclick=lsDirs("${ctx}/hdfs/listdir/'+result.parentPath+':'+dir.dirName+'") href="#">';
+						tr += dir.dirName.replace(/`/g,".")+'</a></td><td>'+dir.permission+'</td><td>'+dir.owner+'</td><td>'+dir.group+'</td></tr>';
+				     	$("#dirrows").append(tr);
+				     	dirCount++;
+				    });
+				    $("#dirCount").html(dirCount);
+				}
+			}
+		});
+		return false;
+	}
+	
+	function submitSelectFolder(){
+		var box = $("input[name='dirCheckbox']:checked");
+		var folder = "";
+		if(null == box || box.length == 0){
+			alert("请选择要操作的目标目录");
+			return false;
+		}else{
+			folder = $("#dirpathval").val()+":"+box.val();
+		}
+		var fileOpType = $("#fileOpType").val();
+		var opFile = $("#dstpath").val()+":"+$("input[name='rowCheckbox']:checked").val();
+		moveto(opFile,folder);
+		return false;
+	}
+	
+	function moveto(opFile,dstfolder){
+		$.ajax({
+			url : '${ctx}/hdfs/moveFile/'+dstfolder+'/'+opFile, 
+			dataType : "json",
+			success : function(result) {
+				if(result.errMsg){
+					alert(result.errMsg);
+				}else{
+					ls("${ctx}/hdfs/list/"+$("#dstpath").val());
+					$('#FileChangeModal').modal('hide');
+				}
+			}
+		});
+		return false;
+	}
+	
+	function downFiles(){
+		var boxs = $("input[name='rowCheckbox']:checked");
+		if(boxs.length > 1 || boxs.length == 0){
+			alert("请选择一个被操作的目录或文件");
+		}else{
+			$.ajax({
+				url : '${ctx}/hdfs/dowloadHdfsFile/'+boxs.val(), 
+				dataType : "json",
+				success : function(result) {
+					if(result.errMsg){
+						alert(result.errMsg);
+					}else{
+						location.href='${ctx}/hdfs/dowloadFile/'+result.file;
+					}
+				}
+			});
+		}
+		return false;
+	}
 	
 </SCRIPT>
